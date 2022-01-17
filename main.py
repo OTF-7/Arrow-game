@@ -1,7 +1,7 @@
 import math
 from threading import Thread
 from time import sleep
-
+import os
 from termcolor import colored
 
 
@@ -22,6 +22,7 @@ class Game:
 
     def play_game(self):
         try:
+            os.system("color")
             self.name = input(colored('\nEnter your name > ', 'yellow'))
             self.difficulty = int(input(colored('\nEnter the level > ', "white")))
             if self.difficulty == 1:
@@ -63,6 +64,30 @@ class Game:
         print(colored("|" * self.yellow_count, "yellow"), end='')
         print(colored("|" * self.green_count, "green"), end='')
         print(colored("|" * self.cyan_count, "cyan"))
+
+        print(colored(" " * self.cyan_count, "cyan"), end='')
+        print(colored("|" * self.green_count, "green"), end='')
+        print(colored("|" * self.yellow_count, "yellow"), end='')
+        print(colored("|" * self.red_count, "red"), end='')
+        print(colored("|" * self.yellow_count, "yellow"), end='')
+        print(colored("|" * self.green_count, "green"), end='')
+        print(colored(" " * self.cyan_count, "cyan"))
+
+        print(colored(" " * self.cyan_count, "cyan"), end='')
+        print(colored(" " * self.green_count, "green"), end='')
+        print(colored("|" * self.yellow_count, "yellow"), end='')
+        print(colored("|" * self.red_count, "red"), end='')
+        print(colored("|" * self.yellow_count, "yellow"), end='')
+        print(colored(" " * self.green_count, "green"), end='')
+        print(colored(" " * self.cyan_count, "cyan"))
+
+        print(colored(" " * self.cyan_count, "cyan"), end='')
+        print(colored(" " * self.green_count, "green"), end='')
+        print(colored(" " * self.yellow_count, "yellow"), end='')
+        print(colored("|" * self.red_count, "red"), end='')
+        print(colored(" " * self.yellow_count, "yellow"), end='')
+        print(colored(" " * self.green_count, "green"), end='')
+        print(colored(" " * self.cyan_count, "cyan"))
 
     def __start_game(self):
         while self.result is None:
