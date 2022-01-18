@@ -1,18 +1,25 @@
+import os
 from threading import Thread
 from time import sleep
-import os
-from termcolor import colored
+
+from terminal_colors import *
 
 
 class Game:
     def __init__(self):
+        # The name of the player
         self.name = ''
+        # The direction of the arrow (from the left to the right and from the right to the left)
         self.direction = True
+        # Time between arrow movements
         self.sleep_time = 0.03
         # Maximum number of slashes
         self.maximum = 150
-        self.result = None
+        # The arrow keep moving until the user enter a value to the finish_game variable (or just press enter)
+        self.finish_game = None
+        # The position of the arrow
         self.position = 1
+        # The level of the game
         self.difficulty = 1
         # Number of cyan slashes
         self.cyan_count = 0
@@ -22,35 +29,51 @@ class Game:
         self.yellow_count = 0
         # Number of red slashes
         self.red_count = 0
+        # The score of the player
         self.total = 0
 
     def play_game(self):
         """Public method: for starting the game"""
-        try:
-            os.system("color")
-            self.name = input(colored('\nEnter your name > ', 'yellow'))
-            self.difficulty = int(input(colored('\nEnter the level > ', "white")))
-            if self.difficulty == 1:
-                self.sleep_time = 0.03
-            elif self.difficulty == 2:
-                self.sleep_time = 0.02
-            else:
-                self.sleep_time = 0.01
-            print("""
+        # For supporting windows system colors
+        os.system("color")
+
+        # The name of the player
+        self.name = input(Fore.WHITE + '\nEnter your name > ' + Fore.RESET)
+        # If the user entered non numeric value, he will be prompt to enter another
+        while self.name == "":
+            self.name = input(Fore.YELLOW + '\nYou should enter your name > ' + Fore.RESET)
+
+        # The level of the game
+        user_input = input(Fore.WHITE + '\nEnter the level > ' + Fore.RESET)
+        # If the user entered non numeric value, he will be prompt to enter another
+        while not user_input.isdigit() or (user_input.isdigit() and int(user_input) not in [1, 2, 3]):
+            user_input = input(
+                Fore.YELLOW + '\nWrong input type, The level should be 1, 2, or 3, try again > ' + Fore.RESET)
+        self.difficulty = int(user_input)
+
+        # Change the duration according to the level of the game
+        if self.difficulty == 1:
+            self.sleep_time = 0.03
+        elif self.difficulty == 2:
+            self.sleep_time = 0.02
+        else:
+            self.sleep_time = 0.01
+
+        # Start drawing the goal
+        print(Fore.BLUE + """
 Press enter to stop...
-                  """)
-            self.__draw_goal()
-            # Thread for moving the arrow
-            t = Thread(target=self.__start_game)
-            t.start()
-            # The main thread is waiting for an input from the user
-            self.result = input('')
-            # After pressing the enter button, __show_result() method will be invoked
-            self.__show_result()
-            # After completing one game, it will return the name and the result of the player
-            return self.name, self.total
-        except ValueError:
-            print(colored("Wrong Input type, make sure that you enter an integer value!", "red"))
+              """ + Fore.RESET)
+        self.__draw_goal()
+
+        # Thread for moving the arrow
+        t = Thread(target=self.__start_game)
+        t.start()
+        # The main thread is waiting for an input from the user
+        self.finish_game = input('')
+        # After pressing the enter button, __show_result() method will be invoked
+        self.__show_result()
+        # After completing one game, it will return the name and the result of the player
+        return self.name, self.total
 
     def __draw_goal(self):
         """Private method: for drawing the goal"""
@@ -70,43 +93,64 @@ Press enter to stop...
             self.yellow_count = 15
             self.red_count = 10
 
-        print(colored("|" * self.cyan_count, "cyan"), end='')
-        print(colored("|" * self.green_count, "green"), end='')
-        print(colored("|" * self.yellow_count, "yellow"), end='')
-        print(colored("|" * self.red_count, "red"), end='')
-        print(colored("|" * self.yellow_count, "yellow"), end='')
-        print(colored("|" * self.green_count, "green"), end='')
-        print(colored("|" * self.cyan_count, "cyan"))
+        # for printing the points numbers
+        for index in range(150):
+            if index % 5 == 0:
+                if index == 0 or index == 75 or index == 150 or index == 25 \
+                        or index == 50 or index == 100 or index == 125:
+                    color = Fore.BLACK
+                else:
+                    color = Fore.WHITE
+                print(color + str(index + 1), end=' ' * (5 - len(str(index))))
+        print("\b" + Fore.BLACK + "150")
+
+        for index in range(150):
+            if index % 5 == 0:
+                if index == 0 or index == 75 or index == 150 or index == 25 \
+                        or index == 50 or index == 100 or index == 125:
+                    color = Fore.BLACK
+                else:
+                    color = Fore.WHITE
+                print(color + "*", end=' ' * 4)
+        print("\b" + Fore.BLACK + "*")
+
+        print(Fore.CYAN + "|" * self.cyan_count + Fore.RESET, end='')
+        print(Fore.GREEN + "|" * self.green_count + Fore.RESET, end='')
+        print(Fore.YELLOW + "|" * self.yellow_count + Fore.RESET, end='')
+        print(Fore.RED + "|" * self.red_count + Fore.RESET, end='')
+        print(Fore.YELLOW + "|" * self.yellow_count + Fore.RESET, end='')
+        print(Fore.GREEN + "|" * self.green_count + Fore.RESET, end='')
+        print(Fore.CYAN + "|" * self.cyan_count + Fore.RESET)
 
         if not self.difficulty == 1:
-            print(colored(" " * self.cyan_count, "cyan"), end='')
-            print(colored("|" * self.green_count, "green"), end='')
-            print(colored("|" * self.yellow_count, "yellow"), end='')
-            print(colored("|" * self.red_count, "red"), end='')
-            print(colored("|" * self.yellow_count, "yellow"), end='')
-            print(colored("|" * self.green_count, "green"), end='')
-            print(colored(" " * self.cyan_count, "cyan"))
+            print(Fore.CYAN + " " * self.cyan_count + Fore.RESET, end='')
+            print(Fore.GREEN + "|" * self.green_count + Fore.RESET, end='')
+            print(Fore.YELLOW + "|" * self.yellow_count + Fore.RESET, end='')
+            print(Fore.RED + "|" * self.red_count + Fore.RESET, end='')
+            print(Fore.YELLOW + "|" * self.yellow_count + Fore.RESET, end='')
+            print(Fore.GREEN + "|" * self.green_count + Fore.RESET, end='')
+            print(Fore.CYAN + " " * self.cyan_count + Fore.RESET)
 
-        print(colored(" " * self.cyan_count, "cyan"), end='')
-        print(colored(" " * self.green_count, "green"), end='')
-        print(colored("|" * self.yellow_count, "yellow"), end='')
-        print(colored("|" * self.red_count, "red"), end='')
-        print(colored("|" * self.yellow_count, "yellow"), end='')
-        print(colored(" " * self.green_count, "green"), end='')
-        print(colored(" " * self.cyan_count, "cyan"))
+        print(Fore.CYAN + " " * self.cyan_count + Fore.RESET, end='')
+        print(Fore.GREEN + " " * self.green_count + Fore.RESET, end='')
+        print(Fore.YELLOW + "|" * self.yellow_count + Fore.RESET, end='')
+        print(Fore.RED + "|" * self.red_count + Fore.RESET, end='')
+        print(Fore.YELLOW + "|" * self.yellow_count + Fore.RESET, end='')
+        print(Fore.GREEN + " " * self.green_count + Fore.RESET, end='')
+        print(Fore.CYAN + " " * self.cyan_count + Fore.RESET, )
 
-        print(colored(" " * self.cyan_count, "cyan"), end='')
-        print(colored(" " * self.green_count, "green"), end='')
-        print(colored(" " * self.yellow_count, "yellow"), end='')
-        print(colored("|" * self.red_count, "red"), end='')
-        print(colored(" " * self.yellow_count, "yellow"), end='')
-        print(colored(" " * self.green_count, "green"), end='')
-        print(colored(" " * self.cyan_count, "cyan"))
+        print(Fore.CYAN + " " * self.cyan_count + Fore.RESET, end='')
+        print(Fore.GREEN + " " * self.green_count + Fore.RESET, end='')
+        print(Fore.YELLOW + " " * self.yellow_count + Fore.RESET, end='')
+        print(Fore.RED + "|" * self.red_count + Fore.RESET, end='')
+        print(Fore.YELLOW + " " * self.yellow_count + Fore.RESET, end='')
+        print(Fore.GREEN + " " * self.green_count + Fore.RESET, end='')
+        print(Fore.CYAN + " " * self.cyan_count + Fore.RESET, )
 
     def __start_game(self):
         """Private method: for playing"""
-        # While the user doesn't press enter button
-        while self.result is None:
+        # Keep moving while the user doesn't press enter button
+        while self.finish_game is None:
             # If the direction is from the left to the right, move forward otherwise move backward
             if self.direction:
                 self.__move_forward()
@@ -136,13 +180,13 @@ Press enter to stop...
         # Clear the row
         print("\b" * self.maximum, end='')
         # print multiple spaces (position - 1 spaces) and then print the arrow ^
-        print(' ' * (self.position - 1), colored("^", "magenta"), sep='', end='')
+        print(' ' * (self.position - 1), Fore.WHITE + "^" + Fore.RESET, sep='', end='')
         # Wait a certain time between each movement
         sleep(self.sleep_time)
 
     def __show_result(self):
         """Private method: for showing the final result"""
-        # calculate level score
+        # calculate level-score
         if self.difficulty == 1:
             if self.position <= self.green_count or \
                     self.position > self.green_count + self.yellow_count * 2 + self.red_count:
@@ -176,8 +220,7 @@ Press enter to stop...
 
         # calculate the final score and print it
         self.total = self.score + extra
-        print(colored('Your score is ' + str(self.total),
-                      'blue'))
+        print(Fore.WHITE + 'Your score is ' + Fore.BLACK + str(self.total) + Fore.RESET)
 
 
 def main():
@@ -187,14 +230,13 @@ def main():
     players_list = list()
     # loop check variable
     still_playing = '1'
-    try:
-        while still_playing == '1':
-            g = Game()
-            name, total = g.play_game()
-            players[name] = total
-            still_playing = input(colored('Enter 1 to play again, and press enter to exit...  ', 'green'))
-    except ValueError:
-        print(colored("Wrong Input type, make sure that you enter an integer value!", "red"))
+    while still_playing == '1':
+        g = Game()
+        name, total = g.play_game()
+        players[name] = total
+        still_playing = input(
+            Fore.BLUE + f'\nEnter {Fore.BLACK}(1){Fore.BLUE} to play again, and press enter to exit...  '
+            + Fore.RESET)
 
     # sort the players according to their scores
     for name, total in players.items():
@@ -202,9 +244,9 @@ def main():
         players_list.append(new_player)
     players_list = sorted(players_list, reverse=True)
 
-    print(colored('Best results: ', 'yellow'))
+    print(Fore.WHITE + '\nBest results: ' + Fore.RESET)
     for total, name in players_list:
-        print(colored(f"{name}: {total}", "blue"))
+        print(Fore.WHITE + f"\n{name}: {Fore.BLACK}{total}" + Fore.RESET)
 
 
 # It won't work if the user import my module
