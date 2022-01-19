@@ -2,10 +2,10 @@ import os
 from threading import Thread
 from time import sleep
 
-from terminal_colors import *
+from utilities.terminal_colors import *
 from art import *
 import winsound
-
+from utilities.printer import Printer
 
 class Game:
     def __init__(self):
@@ -34,6 +34,7 @@ class Game:
         # The score of the player
         self.total = 0
         self.high = 400
+        self.mid = 300
         self.low = 200
 
     def play_game(self):
@@ -64,6 +65,7 @@ class Game:
             self.sleep_time = 0.01
 
         # Start drawing the goal
+        Printer.print_goal()
         print(Fore.BLUE + """
 Press enter to stop...
               """ + Fore.RESET)
@@ -75,9 +77,10 @@ Press enter to stop...
         # The main thread is waiting for an input from the user
         self.finish_game = input('')
         # After pressing the enter button, __show_result() method will be invoked
+        Printer.print_result()
         self.__show_result()
         # After completing one game, it will return the name and the result of the player
-        return self.name, self.total
+        return self.name, self.total, self.difficulty
 
     def __draw_goal(self):
         """Private method: for drawing the goal"""
@@ -224,16 +227,20 @@ Press enter to stop...
 
         # calculate the final score and print it
         self.total = self.score + extra
+        color = Fore.RED if self.score == self.high or self.difficulty == 1 and self.score == self.mid else \
+            Fore.YELLOW if self.score == self.mid or self.difficulty == 1 and self.score == self.low else \
+            Fore.GREEN if self.score == self.low or self.difficulty == 1 \
+            else Fore.CYAN
         art_text = text2art(str(self.total), font='Fraktur')  # Banner3-D, Larry 3D, Fraktur
-        print(Fore.WHITE, art_text, Fore.RESET)
+        print(color, art_text, Fore.RESET)
 
         # play sounds
-        if self.total > self.high:
-            winsound.PlaySound('win.wav', winsound.SND_FILENAME)
-        elif self.total > self.low:
-            winsound.PlaySound('mid.wav', winsound.SND_FILENAME)
+        if self.score == self.high or self.difficulty == 1 and self.score == self.mid:
+            winsound.PlaySound('sounds/win.wav', winsound.SND_FILENAME)
+        elif self.score > self.low or self.difficulty == 1 and self.score == self.low:
+            winsound.PlaySound('sounds/mid.wav', winsound.SND_FILENAME)
         else:
-            winsound.PlaySound('lose.wav', winsound.SND_FILENAME)
+            winsound.PlaySound('sounds/lose.wav', winsound.SND_FILENAME)
 
 
 def main():
@@ -245,22 +252,40 @@ def main():
     still_playing = '1'
     while still_playing == '1':
         g = Game()
-        name, total = g.play_game()
-        players[name] = total
+        name, total, difficulty = g.play_game()
+        players[name] = [total, difficulty]
         still_playing = input(
             Fore.BLUE + f'\nEnter {Fore.BLACK}(1){Fore.BLUE} to play again, and press enter to exit...  '
             + Fore.RESET)
 
     # sort the players according to their scores
-    for name, total in players.items():
-        new_player = (total, name)
+    for name, data in players.items():
+        new_player = (data, name)
         players_list.append(new_player)
     players_list = sorted(players_list, reverse=True)
+    with open("history.txt", 'a') as file:
+        art_text = text2art("\nBest results: ", "fancy12")
+        print(Fore.WHITE + art_text + Fore.RESET)
+        print('''-----------------------------------------
+                                (level 1)                 ''')
+        for data, name in players_list:
+            if data[1] == 1:
+                print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{list(data)[0]}" + Fore.RESET)
+                file.write(f"{name}:{list(data)}\n")
 
-    art_text = text2art("\nBest results: ", "fancy12")
-    print(Fore.WHITE + art_text + Fore.RESET)
-    for total, name in players_list:
-        print(Fore.WHITE + f"\n{name}: {Fore.BLACK}{total}" + Fore.RESET)
+        print('''-----------------------------------------
+                                (level 2)                 ''')
+        for data, name in players_list:
+            if data[1] == 2:
+                print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{list(data)[0]}" + Fore.RESET)
+                file.write(f"{name}:{list(data)}\n")
+
+        print('''-----------------------------------------
+                                (level 3)                 ''')
+        for data, name in players_list:
+            if data[1] == 3:
+                print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{list(data)[0]}" + Fore.RESET)
+                file.write(f"{name}:{list(data)}\n")
 
 
 # It won't work if the user import my module
