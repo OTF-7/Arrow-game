@@ -3,6 +3,8 @@ from threading import Thread
 from time import sleep
 
 from terminal_colors import *
+from art import *
+import winsound
 
 
 class Game:
@@ -31,6 +33,8 @@ class Game:
         self.red_count = 0
         # The score of the player
         self.total = 0
+        self.high = 400
+        self.low = 200
 
     def play_game(self):
         """Public method: for starting the game"""
@@ -220,7 +224,16 @@ Press enter to stop...
 
         # calculate the final score and print it
         self.total = self.score + extra
-        print(Fore.WHITE + 'Your score is ' + Fore.BLACK + str(self.total) + Fore.RESET)
+        art_text = text2art(str(self.total), font='Fraktur')  # Banner3-D, Larry 3D, Fraktur
+        print(Fore.WHITE, art_text, Fore.RESET)
+
+        # play sounds
+        if self.total > self.high:
+            winsound.PlaySound('win.wav', winsound.SND_FILENAME)
+        elif self.total > self.low:
+            winsound.PlaySound('mid.wav', winsound.SND_FILENAME)
+        else:
+            winsound.PlaySound('lose.wav', winsound.SND_FILENAME)
 
 
 def main():
@@ -244,7 +257,8 @@ def main():
         players_list.append(new_player)
     players_list = sorted(players_list, reverse=True)
 
-    print(Fore.WHITE + '\nBest results: ' + Fore.RESET)
+    art_text = text2art("\nBest results: ", "fancy12")
+    print(Fore.WHITE + art_text + Fore.RESET)
     for total, name in players_list:
         print(Fore.WHITE + f"\n{name}: {Fore.BLACK}{total}" + Fore.RESET)
 
