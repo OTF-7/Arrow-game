@@ -135,8 +135,8 @@ class Printer:
         self.total = self.score + extra
         color = Fore.RED if self.score == self.high or self.level == 1 and self.score == self.mid else \
             Fore.YELLOW if self.score == self.mid or self.level == 1 and self.score == self.low else \
-            Fore.GREEN if self.score == self.low or self.level == 1 \
-            else Fore.CYAN
+                Fore.GREEN if self.score == self.low or self.level == 1 \
+                    else Fore.CYAN
         art_text = text2art(str(self.total), font='Fraktur')
         print(color, art_text, Fore.RESET)
 
@@ -170,22 +170,53 @@ class Printer:
             for data, name in players_list:
                 if data[1] == 1:
                     print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{list(data)[0]}" + Fore.RESET)
-                    file.write(f"{name}:{list(data)}\n")
+                    file.write(f"{name}:{data[0]}:{data[1]}\n")
 
             print('''-----------------------------------------
                                 (level 2)                 ''')
             for data, name in players_list:
                 if data[1] == 2:
                     print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{list(data)[0]}" + Fore.RESET)
-                    file.write(f"{name}:{list(data)}\n")
+                    file.write(f"{name}:{data[0]}:{data[1]}\n")
 
             print('''-----------------------------------------
                                 (level 3)                 ''')
             for data, name in players_list:
                 if data[1] == 3:
                     print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{list(data)[0]}" + Fore.RESET)
-                    file.write(f"{name}:{list(data)}\n")
+                    file.write(f"{name}:{data[0]}:{data[1]}\n")
 
     @staticmethod
     def print_whole_history():
-        pass
+        level1_list, level2_list, level3_list = list(), list(), list()
+        with open("utilities/history.txt") as file:
+            for line in file.readlines():
+                line = line.rstrip("\n")
+                name, total, level = line.split(":")
+                if level == "1":
+                    level1_list.append((total, name))
+                elif level == "2":
+                    level2_list.append((total, name))
+                else:
+                    level3_list.append((total, name))
+
+            art_text = text2art("\nBest results: ", "fancy12")
+            print(Fore.WHITE + art_text + Fore.RESET)
+
+            print(level1_list)
+            print(level2_list)
+            print(level3_list)
+            print('''-----------------------------------------
+                                (level 1)                 ''')
+            for (total, name) in level1_list:
+                print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{total}" + Fore.RESET)
+
+            print('''-----------------------------------------
+                                (level 2)                 ''')
+            for (total, name) in level2_list:
+                print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{total}" + Fore.RESET)
+
+            print('''-----------------------------------------
+                                (level 3)                 ''')
+            for (total, name) in level3_list:
+                print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{total}" + Fore.RESET)
