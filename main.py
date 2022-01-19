@@ -108,22 +108,44 @@ class Game:
 
 
 def main():
-    # dictionary for storing players names, and scores
-    players = dict()
-    # list for sorting the players according to their scores
-    players_list = list()
-    # loop check variable
-    still_playing = '1'
-    while still_playing == '1':
-        g = Game()
-        name, total, difficulty = g.play_game()
-        players[name] = [total, difficulty]
-        still_playing = input(
-            Fore.BLUE + f'\nEnter {Fore.BLACK}(1){Fore.BLUE} to play again, and press enter to exit...  '
-            + Fore.RESET)
+    while True:
+        option = input(Fore.WHITE + """
+    1) play (multi players)
+    2) play (against the computer)
+    3) show the history
+    4) quit
+    > """ + Fore.RESET)
+        while not (option == "1" or option == "2" or option == "3" or option == "4"):
+            option = input(Fore.YELLOW + """
+    Wrong, you should enter the number of below options
+    1) play (multi players)
+    2) play (against the computer)
+    3) show the history
+    4) quit
+    > """ + Fore.RESET)
+        if option == "1":
+            # dictionary for storing players names, and scores
+            players = dict()
+            # list for sorting the players according to their scores
+            players_list = list()
+            # loop check variable
+            still_playing = '1'
+            while still_playing == '1':
+                g = Game()
+                name, total, difficulty = g.play_game()
+                players[name] = [total, difficulty]
+                still_playing = input(
+                    Fore.BLUE + f'\nEnter {Fore.BLACK}(1){Fore.BLUE} to play again, and press enter to exit...  '
+                    + Fore.RESET)
 
-    # print the recently history
-    Printer.print_history(players, players_list)
+            # print the recently history
+            Printer.print_history(players, players_list)
+        elif option == "2":
+            print("Under maintenance :)")
+        elif option == "3":
+            Printer.print_whole_history()
+        else:
+            quit()
 
 
 # It won't work if the user import my module

@@ -5,6 +5,10 @@ from art import *
 
 class Printer:
     @staticmethod
+    def print_menu():
+        pass
+
+    @staticmethod
     def print_goal(self):
         """Public method: for drawing the goal"""
 
@@ -162,21 +166,21 @@ class Printer:
             art_text = text2art("\nBest results: ", "fancy12")
             print(Fore.WHITE + art_text + Fore.RESET)
             print('''-----------------------------------------
-                                        (level 1)                 ''')
+                                (level 1)                 ''')
             for data, name in players_list:
                 if data[1] == 1:
                     print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{list(data)[0]}" + Fore.RESET)
                     file.write(f"{name}:{list(data)}\n")
 
             print('''-----------------------------------------
-                                        (level 2)                 ''')
+                                (level 2)                 ''')
             for data, name in players_list:
                 if data[1] == 2:
                     print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{list(data)[0]}" + Fore.RESET)
                     file.write(f"{name}:{list(data)}\n")
 
             print('''-----------------------------------------
-                                        (level 3)                 ''')
+                                (level 3)                 ''')
             for data, name in players_list:
                 if data[1] == 3:
                     print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{list(data)[0]}" + Fore.RESET)
