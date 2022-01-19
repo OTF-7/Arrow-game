@@ -1,11 +1,10 @@
 import os
 from threading import Thread
-from time import sleep
 
 from utilities.terminal_colors import *
-from art import *
-import winsound
+from utilities.mover import Mover
 from utilities.printer import Printer
+
 
 class Game:
     def __init__(self):
@@ -22,7 +21,7 @@ class Game:
         # The position of the arrow
         self.position = 1
         # The level of the game
-        self.difficulty = 1
+        self.level = 1
         # Number of cyan slashes
         self.cyan_count = 0
         # Number of green slashes
@@ -33,14 +32,43 @@ class Game:
         self.red_count = 0
         # The score of the player
         self.total = 0
+        # high level score
         self.high = 400
+        # mid level score
         self.mid = 300
+        # low level score
         self.low = 200
 
     def play_game(self):
         """Public method: for starting the game"""
+
         # For supporting windows system colors
         os.system("color")
+
+        # For inserting the name of the player and the level of the game
+        self.__insert_user_data()
+
+        # determine how fast should the arrow be according to the level of the game
+        self.__specify_arrow_speed()
+
+        # Start drawing the goal
+        Printer.print_goal(self)
+
+        # Thread for moving the arrow
+        t = Thread(target=self.__start_game)
+        t.start()
+
+        # The main thread is waiting for an input from the user
+        self.finish_game = input('')
+
+        # After pressing the enter button, Printer.print_result(self) method will be invoked
+        Printer.print_result(self)
+
+        # After completing one game, it will return the name, the level, and the result of the player
+        return self.name, self.total, self.level
+
+    def __insert_user_data(self):
+        """Private method: for getting user data"""
 
         # The name of the player
         self.name = input(Fore.WHITE + '\nEnter your name > ' + Fore.RESET)
@@ -53,194 +81,30 @@ class Game:
         # If the user entered non numeric value, he will be prompt to enter another
         while not user_input.isdigit() or (user_input.isdigit() and int(user_input) not in [1, 2, 3]):
             user_input = input(
-                Fore.YELLOW + '\nWrong input type, The level should be 1, 2, or 3, try again > ' + Fore.RESET)
-        self.difficulty = int(user_input)
+                Fore.YELLOW + '\nWrong, The level should be 1, 2, or 3, try again > ' + Fore.RESET)
+        self.level = int(user_input)
+
+    def __specify_arrow_speed(self):
+        """Private method: for changing arrow speed"""
 
         # Change the duration according to the level of the game
-        if self.difficulty == 1:
+        if self.level == 1:
             self.sleep_time = 0.03
-        elif self.difficulty == 2:
+        elif self.level == 2:
             self.sleep_time = 0.02
         else:
             self.sleep_time = 0.01
 
-        # Start drawing the goal
-        Printer.print_goal()
-        print(Fore.BLUE + """
-Press enter to stop...
-              """ + Fore.RESET)
-        self.__draw_goal()
-
-        # Thread for moving the arrow
-        t = Thread(target=self.__start_game)
-        t.start()
-        # The main thread is waiting for an input from the user
-        self.finish_game = input('')
-        # After pressing the enter button, __show_result() method will be invoked
-        Printer.print_result()
-        self.__show_result()
-        # After completing one game, it will return the name and the result of the player
-        return self.name, self.total, self.difficulty
-
-    def __draw_goal(self):
-        """Private method: for drawing the goal"""
-        if self.difficulty == 1:
-            self.cyan_count = 0
-            self.green_count = 40
-            self.yellow_count = 25
-            self.red_count = 20
-        elif self.difficulty == 2:
-            self.cyan_count = 25
-            self.green_count = 25
-            self.yellow_count = 15
-            self.red_count = 20
-        else:
-            self.cyan_count = 30
-            self.green_count = 25
-            self.yellow_count = 15
-            self.red_count = 10
-
-        # for printing the points numbers
-        for index in range(150):
-            if index % 5 == 0:
-                if index == 0 or index == 75 or index == 150 or index == 25 \
-                        or index == 50 or index == 100 or index == 125:
-                    color = Fore.BLACK
-                else:
-                    color = Fore.WHITE
-                print(color + str(index + 1), end=' ' * (5 - len(str(index))))
-        print("\b" + Fore.BLACK + "150")
-
-        for index in range(150):
-            if index % 5 == 0:
-                if index == 0 or index == 75 or index == 150 or index == 25 \
-                        or index == 50 or index == 100 or index == 125:
-                    color = Fore.BLACK
-                else:
-                    color = Fore.WHITE
-                print(color + "*", end=' ' * 4)
-        print("\b" + Fore.BLACK + "*")
-
-        print(Fore.CYAN + "|" * self.cyan_count + Fore.RESET, end='')
-        print(Fore.GREEN + "|" * self.green_count + Fore.RESET, end='')
-        print(Fore.YELLOW + "|" * self.yellow_count + Fore.RESET, end='')
-        print(Fore.RED + "|" * self.red_count + Fore.RESET, end='')
-        print(Fore.YELLOW + "|" * self.yellow_count + Fore.RESET, end='')
-        print(Fore.GREEN + "|" * self.green_count + Fore.RESET, end='')
-        print(Fore.CYAN + "|" * self.cyan_count + Fore.RESET)
-
-        if not self.difficulty == 1:
-            print(Fore.CYAN + " " * self.cyan_count + Fore.RESET, end='')
-            print(Fore.GREEN + "|" * self.green_count + Fore.RESET, end='')
-            print(Fore.YELLOW + "|" * self.yellow_count + Fore.RESET, end='')
-            print(Fore.RED + "|" * self.red_count + Fore.RESET, end='')
-            print(Fore.YELLOW + "|" * self.yellow_count + Fore.RESET, end='')
-            print(Fore.GREEN + "|" * self.green_count + Fore.RESET, end='')
-            print(Fore.CYAN + " " * self.cyan_count + Fore.RESET)
-
-        print(Fore.CYAN + " " * self.cyan_count + Fore.RESET, end='')
-        print(Fore.GREEN + " " * self.green_count + Fore.RESET, end='')
-        print(Fore.YELLOW + "|" * self.yellow_count + Fore.RESET, end='')
-        print(Fore.RED + "|" * self.red_count + Fore.RESET, end='')
-        print(Fore.YELLOW + "|" * self.yellow_count + Fore.RESET, end='')
-        print(Fore.GREEN + " " * self.green_count + Fore.RESET, end='')
-        print(Fore.CYAN + " " * self.cyan_count + Fore.RESET, )
-
-        print(Fore.CYAN + " " * self.cyan_count + Fore.RESET, end='')
-        print(Fore.GREEN + " " * self.green_count + Fore.RESET, end='')
-        print(Fore.YELLOW + " " * self.yellow_count + Fore.RESET, end='')
-        print(Fore.RED + "|" * self.red_count + Fore.RESET, end='')
-        print(Fore.YELLOW + " " * self.yellow_count + Fore.RESET, end='')
-        print(Fore.GREEN + " " * self.green_count + Fore.RESET, end='')
-        print(Fore.CYAN + " " * self.cyan_count + Fore.RESET, )
-
     def __start_game(self):
         """Private method: for playing"""
+
         # Keep moving while the user doesn't press enter button
         while self.finish_game is None:
             # If the direction is from the left to the right, move forward otherwise move backward
             if self.direction:
-                self.__move_forward()
+                Mover.move_forward(self)
             else:
-                self.__move_backward()
-
-    def __move_forward(self):
-        """Private method: for moving the arrow forward, it uses the __move() method to move"""
-        self.__move()
-        # Keep incrementing the position until it reaches the end
-        self.position += 1
-        # When the position of the arrow reaches the end, change the direction
-        if self.position == self.maximum:
-            self.direction = False
-
-    def __move_backward(self):
-        """Private method: for moving the arrow backward, it uses the __move() method to move"""
-        self.__move()
-        # Keep decrementing the position until it reaches the beginning
-        self.position -= 1
-        # When the position of the arrow reaches the beginning, change the direction
-        if self.position == 1:
-            self.direction = True
-
-    def __move(self):
-        """Private method: for moving the arrow"""
-        # Clear the row
-        print("\b" * self.maximum, end='')
-        # print multiple spaces (position - 1 spaces) and then print the arrow ^
-        print(' ' * (self.position - 1), Fore.WHITE + "^" + Fore.RESET, sep='', end='')
-        # Wait a certain time between each movement
-        sleep(self.sleep_time)
-
-    def __show_result(self):
-        """Private method: for showing the final result"""
-        # calculate level-score
-        if self.difficulty == 1:
-            if self.position <= self.green_count or \
-                    self.position > self.green_count + self.yellow_count * 2 + self.red_count:
-                self.score = 100
-            elif self.position <= self.green_count + self.yellow_count or \
-                    self.position > self.green_count + self.yellow_count + self.red_count:
-                self.score = 200
-            else:
-                self.score = 300
-        else:
-            if self.position <= self.cyan_count or \
-                    self.position > self.cyan_count + self.green_count * 2 + self.yellow_count * 2 + self.red_count:
-                self.score = 100
-            elif self.position <= self.cyan_count + self.green_count or \
-                    self.position > self.cyan_count + self.green_count + self.yellow_count * 2 + self.red_count:
-                self.score = 200
-            elif self.position <= self.cyan_count + self.green_count + self.yellow_count or \
-                    self.position > self.cyan_count + self.green_count + self.yellow_count + self.red_count:
-                self.score = 300
-            else:
-                self.score = 400
-
-        # clear the screen
-        print("\b" * self.maximum, end='')
-
-        # calculate the extra slashes in the level
-        # self.maximum // 2 == the center
-        # abs(self.maximum // 2 - self.position) == the difference between the center and
-        # the position of the arrow
-        extra = (self.maximum // 2 - abs(self.maximum // 2 - self.position))
-
-        # calculate the final score and print it
-        self.total = self.score + extra
-        color = Fore.RED if self.score == self.high or self.difficulty == 1 and self.score == self.mid else \
-            Fore.YELLOW if self.score == self.mid or self.difficulty == 1 and self.score == self.low else \
-            Fore.GREEN if self.score == self.low or self.difficulty == 1 \
-            else Fore.CYAN
-        art_text = text2art(str(self.total), font='Fraktur')  # Banner3-D, Larry 3D, Fraktur
-        print(color, art_text, Fore.RESET)
-
-        # play sounds
-        if self.score == self.high or self.difficulty == 1 and self.score == self.mid:
-            winsound.PlaySound('sounds/win.wav', winsound.SND_FILENAME)
-        elif self.score > self.low or self.difficulty == 1 and self.score == self.low:
-            winsound.PlaySound('sounds/mid.wav', winsound.SND_FILENAME)
-        else:
-            winsound.PlaySound('sounds/lose.wav', winsound.SND_FILENAME)
+                Mover.move_backward(self)
 
 
 def main():
@@ -258,34 +122,8 @@ def main():
             Fore.BLUE + f'\nEnter {Fore.BLACK}(1){Fore.BLUE} to play again, and press enter to exit...  '
             + Fore.RESET)
 
-    # sort the players according to their scores
-    for name, data in players.items():
-        new_player = (data, name)
-        players_list.append(new_player)
-    players_list = sorted(players_list, reverse=True)
-    with open("history.txt", 'a') as file:
-        art_text = text2art("\nBest results: ", "fancy12")
-        print(Fore.WHITE + art_text + Fore.RESET)
-        print('''-----------------------------------------
-                                (level 1)                 ''')
-        for data, name in players_list:
-            if data[1] == 1:
-                print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{list(data)[0]}" + Fore.RESET)
-                file.write(f"{name}:{list(data)}\n")
-
-        print('''-----------------------------------------
-                                (level 2)                 ''')
-        for data, name in players_list:
-            if data[1] == 2:
-                print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{list(data)[0]}" + Fore.RESET)
-                file.write(f"{name}:{list(data)}\n")
-
-        print('''-----------------------------------------
-                                (level 3)                 ''')
-        for data, name in players_list:
-            if data[1] == 3:
-                print(Fore.WHITE + f"   \n{name}: {Fore.BLACK}{list(data)[0]}" + Fore.RESET)
-                file.write(f"{name}:{list(data)}\n")
+    # print the recently history
+    Printer.print_history(players, players_list)
 
 
 # It won't work if the user import my module
