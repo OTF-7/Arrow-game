@@ -42,17 +42,18 @@ class Printer:
     @staticmethod
     def __print_points_numbers():
         # for printing the points' numbers
-        for index in range(150):
+        print("\b" + Fore.BLACK + "1   ", end='')
+        for index in range(5, 151):
             if index % 5 == 0:
                 if index == 0 or index == 75 or index == 150 or index == 25 \
                         or index == 50 or index == 100 or index == 125:
                     color = Fore.BLACK
                 else:
                     color = Fore.WHITE
-                print(color + str(index + 1), end=' ' * (5 - len(str(index))))
-        print("\b" + Fore.BLACK + "150")
+                print(color + str(index), end=' ' * (5 - len(str(index))))
 
-        for index in range(150):
+        print("\n" + Fore.BLACK + "*   ", end='')
+        for index in range(5, 151):
             if index % 5 == 0:
                 if index == 0 or index == 75 or index == 150 or index == 25 \
                         or index == 50 or index == 100 or index == 125:
@@ -60,7 +61,7 @@ class Printer:
                 else:
                     color = Fore.WHITE
                 print(color + "*", end=' ' * 4)
-        print("\b" + Fore.BLACK + "*")
+        print()
 
     @staticmethod
     def __print_slashes(self):
