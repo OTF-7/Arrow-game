@@ -123,6 +123,7 @@ def main():
     3) show the history
     4) quit
     > """ + Fore.RESET)
+
         if option == "1":
             # dictionary for storing players names, and scores
             players = dict()
